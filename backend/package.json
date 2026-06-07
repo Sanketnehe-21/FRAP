@@ -1,0 +1,26 @@
+{
+  "name": "frap-backend",
+  "version": "0.1.0",
+  "description": "Family Financial Activity Tracker - Node.js API",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "db:migrate": "node src/db/migrate.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.1",
+    "pg": "^8.21.0",
+    "uuid": "^11.1.0",
+    "zod": "^3.25.56"
+  }
+}
