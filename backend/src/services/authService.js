@@ -112,6 +112,13 @@ export const authService = {
       throw new BadRequestError('Invalid username or password');
     }
 
+    if (user.status !== 'ACTIVE') {
+      throw new BadRequestError('Account is suspended or deactivated');
+    }
+
+    // Update last login
+    await pool.query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
+
     // Get family details
     const family = await familyModel.findFirstFamilyForUser(null, user.id);
     if (!family) {

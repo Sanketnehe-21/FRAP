@@ -1,4 +1,4 @@
-# FRAP Frontend
+# FRAP Mobile App
 
 Expo React Native app for the **Family Financial Activity Tracker** (Android-first, Phase 1).
 
@@ -25,7 +25,7 @@ Tracks financial activities — not bank balances. Connects to the Node.js backe
 1. Install dependencies:
 
 ```bash
-cd frontend
+cd app
 npm install
 ```
 
@@ -61,7 +61,7 @@ npm run android
 ## Project layout
 
 ```
-frontend/
+app/
 ├── App.js
 ├── app.json
 ├── src/

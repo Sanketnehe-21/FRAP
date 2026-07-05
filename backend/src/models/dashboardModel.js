@@ -54,5 +54,34 @@ export const dashboardModel = {
     `;
     const result = await db.query(query, [familyId, startDate, endDate]);
     return result.rows[0] || null;
+  },
+
+  async getRecentTransactions(client, familyId, limit = 5) {
+    const db = client || pool;
+    const query = `
+      SELECT t.id, t.merchant, t.amount, t.type, t.transaction_date, c.name as category_name, fm.nickname as member_nickname
+      FROM transactions t
+      LEFT JOIN categories c ON c.id = t.category_id
+      JOIN family_members fm ON fm.id = t.member_id
+      WHERE t.family_id = $1
+      ORDER BY t.transaction_date DESC, t.created_at DESC
+      LIMIT $2;
+    `;
+    const result = await db.query(query, [familyId, limit]);
+    return result.rows;
+  },
+
+  async getRecentActivity(client, familyId, limit = 5) {
+    const db = client || pool;
+    const query = `
+      SELECT af.id, af.activity_type, af.message, af.created_at, fm.nickname as member_nickname
+      FROM activity_feed af
+      LEFT JOIN family_members fm ON fm.id = af.member_id
+      WHERE af.family_id = $1
+      ORDER BY af.created_at DESC
+      LIMIT $2;
+    `;
+    const result = await db.query(query, [familyId, limit]);
+    return result.rows;
   }
 };

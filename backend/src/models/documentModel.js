@@ -18,5 +18,12 @@ export const documentModel = {
     const query = 'SELECT * FROM documents WHERE family_id = $1 ORDER BY uploaded_at DESC;';
     const result = await db.query(query, [familyId]);
     return result.rows;
+  },
+
+  async findById(client, id) {
+    const db = client || pool;
+    const query = 'SELECT * FROM documents WHERE id = $1;';
+    const result = await db.query(query, [id]);
+    return result.rows[0] || null;
   }
 };

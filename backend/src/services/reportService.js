@@ -37,10 +37,18 @@ export const reportService = {
       amount: Number(row.total),
     }));
 
+    // 5. Fetch merchant analysis
+    const dbMerchant = await reportModel.getMerchantAnalysis(null, familyId);
+    const merchantAnalysis = dbMerchant.map((row) => ({
+      name: row.merchant,
+      amount: Number(row.total),
+    }));
+
     return {
       monthlyTrends,
       weeklyTrends,
       categoryAnalysis,
+      merchantAnalysis,
     };
   }
 };

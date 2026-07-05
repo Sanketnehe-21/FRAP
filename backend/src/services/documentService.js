@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { documentModel } from '../models/documentModel.js';
 import { familyModel } from '../models/familyModel.js';
 import { familyService } from './familyService.js';
-import { BadRequestError } from '../utils/errors.js';
+import { BadRequestError, NotFoundError } from '../utils/errors.js';
 
 export const documentService = {
   resolveDocumentType(fileName) {
@@ -63,6 +63,23 @@ export const documentService = {
       documentType: created.document_type,
       fileSizeBytes: Number(created.file_size_bytes),
       uploadedAt: created.uploaded_at,
+    };
+  },
+
+  async downloadDocument(familyId, userId, documentId) {
+    await familyService.verifyMembership(familyId, userId);
+
+    const doc = await documentModel.findById(null, documentId);
+    if (!doc) {
+      throw new NotFoundError('Document not found');
+    }
+    if (doc.family_id !== familyId) {
+      throw new BadRequestError('Document does not belong to this family space');
+    }
+
+    return {
+      fileName: doc.file_name,
+      storagePath: doc.storage_path,
     };
   }
 };

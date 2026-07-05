@@ -19,5 +19,15 @@ export const documentController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  async downloadDocument(req, res, next) {
+    try {
+      const { familyId, documentId } = req.params;
+      const result = await documentService.downloadDocument(familyId, req.user.id, documentId);
+      res.download(result.storagePath, result.fileName);
+    } catch (err) {
+      next(err);
+    }
   }
 };

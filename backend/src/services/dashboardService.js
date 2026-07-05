@@ -46,6 +46,27 @@ export const dashboardService = {
     const topCategory = await dashboardModel.getTopCategory(null, familyId, startDate, endDate);
     const topMerchant = await dashboardModel.getTopMerchant(null, familyId, startDate, endDate);
 
+    // 6. Fetch recent items for mobile feed
+    const recentTransactionsRaw = await dashboardModel.getRecentTransactions(null, familyId, 5);
+    const recentTransactions = recentTransactionsRaw.map((tx) => ({
+      id: tx.id,
+      merchant: tx.merchant || 'Transfer/Other',
+      amount: Number(tx.amount),
+      type: tx.type,
+      transactionDate: tx.transaction_date,
+      categoryName: tx.category_name || 'N/A',
+      memberNickname: tx.member_nickname,
+    }));
+
+    const recentActivityRaw = await dashboardModel.getRecentActivity(null, familyId, 5);
+    const recentActivity = recentActivityRaw.map((act) => ({
+      id: act.id,
+      activityType: act.activity_type,
+      message: act.message,
+      createdAt: act.created_at,
+      memberNickname: act.member_nickname,
+    }));
+
     return {
       summary: {
         totalIncome,
@@ -56,7 +77,9 @@ export const dashboardService = {
       insights: {
         topCategory: topCategory ? { name: topCategory.name, amount: Number(topCategory.total) } : null,
         topMerchant: topMerchant ? { name: topMerchant.merchant, amount: Number(topMerchant.total) } : null,
-      }
+      },
+      recentTransactions,
+      recentActivity,
     };
   }
 };

@@ -1,8 +1,10 @@
 # dependencies
 node_modules/
 
-# local database/statement storage
-storage/
+# expo / builds
+.expo/
+web-build/
+dist/
 
 # env files (sensitive data)
 .env

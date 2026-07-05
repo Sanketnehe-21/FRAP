@@ -41,6 +41,7 @@ export default function ReportsScreen() {
   const monthlyTrends = data?.monthlyTrends || [];
   const weeklyTrends = data?.weeklyTrends || [];
   const categoryAnalysis = data?.categoryAnalysis || [];
+  const merchantAnalysis = data?.merchantAnalysis || [];
 
   // Helper calculations for scaling bar charts
   const maxMonthlyVal = Math.max(
@@ -55,6 +56,11 @@ export default function ReportsScreen() {
 
   const maxCategoryVal = Math.max(
     ...categoryAnalysis.map((c) => Number(c.amount)),
+    1
+  );
+
+  const maxMerchantVal = Math.max(
+    ...merchantAnalysis.map((m) => Number(m.amount)),
     1
   );
 
@@ -158,6 +164,30 @@ export default function ReportsScreen() {
           <EmptyState message="No category spend analytics available." />
         )}
 
+        {/* Merchant Analysis Card */}
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Merchant Spend Share (Last 30 Days)</Text>
+        {merchantAnalysis.length > 0 ? (
+          <Card>
+            {merchantAnalysis.map((merch, idx) => {
+              const barWidth = `${Math.min(100, Math.max(2, (Number(merch.amount) / maxMerchantVal) * 100))}%`;
+              return (
+                <View key={merch.name} style={[styles.trendContainer, idx !== merchantAnalysis.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+                  <View style={styles.weeklyHeader}>
+                    <Text style={[styles.trendLabel, { color: colors.text }]}>{merch.name}</Text>
+                    <Text style={[styles.weeklyAmount, { color: colors.expense }]}>
+                      ₹{Number(merch.amount).toLocaleString('en-IN')}
+                    </Text>
+                  </View>
+                  <View style={[styles.progressBarBg, { backgroundColor: colors.border }]}>
+                    <View style={[styles.progressBarFill, { backgroundColor: colors.primary, width: barWidth }]} />
+                  </View>
+                </View>
+              );
+            })}
+          </Card>
+        ) : (
+          <EmptyState message="No merchant spend analytics available." />
+        )}
       </ScrollView>
     </Screen>
   );

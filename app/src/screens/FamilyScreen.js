@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Pressable, Linking } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import * as DocumentPicker from 'expo-document-picker';
 import { Button, Card, EmptyState, LoadingState, Input, Screen } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useAlert } from '../context/AlertContext';
 import { useTheme } from '../context/ThemeContext';
-import { apiRequest } from '../api/client';
+import { apiRequest, getApiUrl } from '../api/client';
 import { spacing } from '../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -29,6 +29,10 @@ export default function FamilyScreen({ navigation }) {
   const [invites, setInvites] = useState([]);
 
   const [loading, setLoading] = useState(true);
+
+  // Suggestions learning layer states
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
 
   const isAdmin = session?.userId === family?.currentAdminUserId;
 
@@ -145,6 +149,38 @@ export default function FamilyScreen({ navigation }) {
       showAlert('Success', 'Bank account linked successfully!', 'success');
     } catch (error) {
       showAlert('Could not link account', error.message, 'error');
+    }
+  }
+
+  const handleDownload = async (docId) => {
+    try {
+      const url = `${getApiUrl()}/api/v1/families/${familyId}/documents/${docId}/download?token=${session.token}`;
+      await Linking.openURL(url);
+    } catch (err) {
+      showAlert('Download failed', err.message, 'error');
+    }
+  };
+
+  async function submitFeedback() {
+    if (!feedbackText.trim()) {
+      showAlert('Error', 'Please enter some feedback content.', 'error');
+      return;
+    }
+    try {
+      setFeedbackLoading(true);
+      await request(`/api/v1/learning/suggestions`, {
+        method: 'POST',
+        body: {
+          familyId,
+          suggestion: feedbackText.trim(),
+        },
+      });
+      setFeedbackText('');
+      showAlert('Success', 'Thank you for your suggestions!', 'success');
+    } catch (err) {
+      showAlert('Submission Failed', err.message, 'error');
+    } finally {
+      setFeedbackLoading(false);
     }
   }
 
@@ -336,13 +372,42 @@ export default function FamilyScreen({ navigation }) {
         {documents.length ? (
           documents.map((doc) => (
             <Card key={doc.id}>
-              <Text style={[styles.primaryText, { color: colors.text }]}>{doc.fileName}</Text>
-              <Text style={[styles.secondaryText, { color: colors.textMuted }]}>{doc.documentType} · {new Date(doc.uploadedAt).toLocaleString('en-IN')}</Text>
+              <View style={styles.documentRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.primaryText, { color: colors.text }]}>{doc.fileName}</Text>
+                  <Text style={[styles.secondaryText, { color: colors.textMuted }]}>
+                    {doc.documentType} · {new Date(doc.uploadedAt).toLocaleDateString('en-IN')}
+                  </Text>
+                </View>
+                <Pressable onPress={() => handleDownload(doc.id)} style={styles.downloadIconBtn}>
+                  <MaterialIcons name="file-download" size={24} color={colors.primary} />
+                </Pressable>
+              </View>
             </Card>
           ))
         ) : (
           <EmptyState message="Upload PDF, CSV, or Excel statements." />
         )}
+
+        {/* Learning Layer Platform Feedback */}
+        <Text style={[styles.section, { color: colors.text }]}>Suggestions & Feedback</Text>
+        <Card>
+          <Input
+            label="Help Improve the Platform"
+            value={feedbackText}
+            onChangeText={setFeedbackText}
+            placeholder="Type your feature suggestions or feedback here..."
+            multiline
+            numberOfLines={3}
+            style={{ height: 80, textAlignVertical: 'top' }}
+          />
+          <Button
+            label={feedbackLoading ? "Submitting..." : "Submit Feedback"}
+            onPress={submitFeedback}
+            disabled={!feedbackText.trim() || feedbackLoading}
+            variant="secondary"
+          />
+        </Card>
 
         <View style={styles.actions}>
           <Button label="Upload statement" onPress={uploadDocument} />
@@ -417,5 +482,14 @@ const styles = StyleSheet.create({
   actions: {
     marginTop: spacing.lg,
     gap: spacing.sm,
+  },
+  documentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  downloadIconBtn: {
+    padding: spacing.xs,
+    marginLeft: spacing.sm,
   },
 });

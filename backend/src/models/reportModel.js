@@ -51,5 +51,23 @@ export const reportModel = {
     `;
     const result = await db.query(query, [familyId]);
     return result.rows;
+  },
+
+  async getMerchantAnalysis(client, familyId) {
+    const db = client || pool;
+    const query = `
+      SELECT 
+        merchant,
+        SUM(amount)::numeric AS total
+      FROM transactions
+      WHERE family_id = $1 
+        AND type = 'EXPENSE'
+        AND merchant IS NOT NULL
+        AND transaction_date >= CURRENT_DATE - INTERVAL '30 days'
+      GROUP BY merchant
+      ORDER BY total DESC;
+    `;
+    const result = await db.query(query, [familyId]);
+    return result.rows;
   }
 };

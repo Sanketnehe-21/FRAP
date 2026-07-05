@@ -112,6 +112,15 @@ export const familyService = {
       expiresAt,
     });
 
+    // Log Activity to activity feed
+    await familyModel.recordActivity(null, {
+      id: uuidv4(),
+      familyId,
+      memberId: adminMember.id,
+      activityType: 'MEMBER_INVITED',
+      message: `Invitation generated for ${payload.fullName} (${inviteEmail})`,
+    });
+
     return {
       id: invite.id,
       familyId: invite.family_id,

@@ -11,6 +11,7 @@ import goalsRouter from './routes/goals.js';
 import documentsRouter from './routes/documents.js';
 import learningRouter from './routes/learning.js';
 import merchantRouter from './routes/merchant.js';
+import adminRouter from './routes/admin.js';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/api/v1/families/:familyId/goals', goalsRouter);
 app.use('/api/v1/families/:familyId/documents', documentsRouter);
 app.use('/api/v1', learningRouter);
 app.use('/api/v1/merchant-registry', merchantRouter);
+app.use('/api/v1/admin', adminRouter);
 
 app.use(errorHandler);
 

@@ -1,8 +1,8 @@
 # dependencies
 node_modules/
 
-# local database/statement storage
-storage/
+# production bundle build outputs
+dist/
 
 # env files (sensitive data)
 .env

@@ -112,6 +112,48 @@ export default function DashboardScreen() {
           </View>
         ) : null}
 
+        {/* Recent Transactions */}
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Transactions</Text>
+        {data?.recentTransactions && data.recentTransactions.length > 0 ? (
+          <Card style={{ paddingHorizontal: 0, paddingVertical: spacing.xs }}>
+            {data.recentTransactions.map((tx, idx) => (
+              <View key={tx.id} style={[styles.txItem, idx !== data.recentTransactions.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.txMerchant, { color: colors.text }]}>{tx.merchant}</Text>
+                  <Text style={[styles.txMeta, { color: colors.textMuted }]}>
+                    {tx.categoryName} · by {tx.memberNickname}
+                  </Text>
+                </View>
+                <Text style={[styles.txAmount, { color: tx.type === 'INCOME' ? colors.income : colors.expense }]}>
+                  {tx.type === 'INCOME' ? '+' : '-'}₹{Number(tx.amount).toLocaleString('en-IN')}
+                </Text>
+              </View>
+            ))}
+          </Card>
+        ) : (
+          <EmptyState message="No transactions recorded yet." />
+        )}
+
+        {/* Recent Activity */}
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
+        {data?.recentActivity && data.recentActivity.length > 0 ? (
+          <Card style={{ paddingHorizontal: 0, paddingVertical: spacing.xs }}>
+            {data.recentActivity.map((act, idx) => (
+              <View key={act.id} style={[styles.actItem, idx !== data.recentActivity.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+                <View style={[styles.actDot, { backgroundColor: colors.primary }]} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.actMessage, { color: colors.text }]}>{act.message}</Text>
+                  <Text style={[styles.actMeta, { color: colors.textMuted }]}>
+                    {new Date(act.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </Card>
+        ) : (
+          <EmptyState message="No activities logged yet." />
+        )}
+
         {/* Category breakdown */}
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Category Breakdown</Text>
         {categories.length > 0 ? (
@@ -243,5 +285,45 @@ const styles = StyleSheet.create({
   categoryPercentage: {
     fontSize: 12,
     textAlign: 'right',
+  },
+  txItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  txMerchant: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  txMeta: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  txAmount: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  actItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  actDot: {
+    height: 8,
+    width: 8,
+    borderRadius: 4,
+    marginTop: 6,
+    marginRight: spacing.sm,
+  },
+  actMessage: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  actMeta: {
+    fontSize: 11,
+    marginTop: 2,
   },
 });
